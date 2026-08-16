@@ -464,24 +464,50 @@ a { color: var(--button); }
   border-top: 1px solid var(--line);
 }
 .contact-person {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 10px;
-  margin: -14px 0 26px;
+  margin: -14px 0 28px;
   text-align: center;
 }
 .contact-person strong {
+  display: block;
   font-family: Fraunces, Georgia, serif;
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 600;
 }
 .contact-person span {
+  display: block;
+  margin-top: 3px;
   font-size: 12px;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--ink-3);
 }
+
+/* Cards that carry their own buttons rather than being one big link. */
+.contact-card-combo { cursor: default; }
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.contact-action {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--button);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease);
+}
+.contact-action:hover { background: var(--button-soft); border-color: #c3d6e5; }
+.contact-action.is-wa { color: #1da851; }
+.contact-action.is-wa:hover { background: #e7f8ee; border-color: #b6e5c9; }
+.contact-action.is-copied { color: #1a7a41; border-color: #b6e5c9; background: #e7f8ee; }
 
 .contact-grid {
   display: grid;
@@ -672,6 +698,32 @@ a.detail-row:hover { background: var(--cream); }
   overflow-wrap: anywhere;
 }
 .detail-arrow { width: 15px; height: 15px; fill: var(--ink-3); flex: none; }
+
+.detail-row-actions { align-items: flex-start; }
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 9px;
+}
+.detail-action {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--button);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease);
+}
+.detail-action:hover { background: var(--button-soft); border-color: #c3d6e5; }
+.detail-action.is-wa { color: #1da851; }
+.detail-action.is-wa:hover { background: #e7f8ee; border-color: #b6e5c9; }
+.detail-action.is-copied { color: #1a7a41; border-color: #b6e5c9; background: #e7f8ee; }
 
 .modal-foot {
   margin: 20px 0 0;

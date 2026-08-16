@@ -120,6 +120,49 @@
     });
   });
 
+  /* ---------- copy to clipboard ---------- */
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    // Fallback for pages served over plain http.
+    return new Promise(function (resolve, reject) {
+      var field = document.createElement('textarea');
+      field.value = text;
+      field.setAttribute('readonly', '');
+      field.style.position = 'fixed';
+      field.style.opacity = '0';
+      document.body.appendChild(field);
+      field.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(field);
+      ok ? resolve() : reject();
+    });
+  }
+
+  document.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-copy]');
+    if (!button) { return; }
+    event.preventDefault();
+
+    var original = button.getAttribute('data-label') || button.textContent;
+    button.setAttribute('data-label', original);
+
+    copyText(button.getAttribute('data-copy')).then(function () {
+      button.textContent = 'Copied';
+      button.classList.add('is-copied');
+    })['catch'](function () {
+      button.textContent = 'Press Ctrl+C';
+    });
+
+    window.setTimeout(function () {
+      button.textContent = original;
+      button.classList.remove('is-copied');
+    }, 1800);
+  });
+
   /* ---------- business modal ---------- */
 
   var modal = document.getElementById('modal');
@@ -153,6 +196,19 @@
       : '';
     var iconClass = 'detail-icon' + (opts.wa ? ' is-wa' : '');
 
+    // Extra buttons (Call/WhatsApp, or Copy for an address) turn the row into a
+    // plain container so the buttons are not nested inside a link.
+    if (opts.actions) {
+      return '<li><div class="detail-row detail-row-actions">' +
+        '<span class="' + iconClass + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICONS[opts.icon] + '</svg></span>' +
+        '<span class="detail-body">' +
+          '<span class="detail-label">' + escapeHtml(opts.label) + '</span>' +
+          '<span class="detail-value">' + escapeHtml(opts.value) + '</span>' +
+          '<span class="detail-actions">' + opts.actions + '</span>' +
+        '</span>' +
+        '</div></li>';
+    }
+
     return '<li><' + tag + ' class="detail-row"' + attrs + '>' +
       '<span class="' + iconClass + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICONS[opts.icon] + '</svg></span>' +
       '<span class="detail-body">' +
@@ -161,6 +217,15 @@
       '</span>' +
       (opts.href ? ARROW : '') +
       '</' + tag + '></li>';
+  }
+
+  function actionLink(label, href, external) {
+    return '<a class="detail-action' + (external ? ' is-wa' : '') + '" href="' + escapeHtml(href) + '"' +
+      (external ? ' target="_blank" rel="noopener"' : '') + '>' + escapeHtml(label) + '</a>';
+  }
+
+  function copyButton(value) {
+    return '<button class="detail-action" type="button" data-copy="' + escapeHtml(value) + '">Copy</button>';
   }
 
   function openModal(id) {
@@ -182,14 +247,31 @@
     modalDesc.hidden = !b.description;
 
     var rows = '';
-    if (b.phone) {
-      rows += detailRow({ icon: 'phone', label: 'Phone', value: b.phone, href: b.phoneHref });
-    }
-    if (b.whatsapp) {
-      rows += detailRow({ icon: 'whatsapp', label: 'WhatsApp', value: b.whatsapp, href: b.whatsappHref, external: true, wa: true });
+    if (b.oneNumber) {
+      // Same number for calls, texts and WhatsApp — one row with both actions.
+      rows += detailRow({
+        icon: 'phone',
+        label: 'Call · Text · WhatsApp',
+        value: b.phone,
+        actions: actionLink('Call', b.phoneHref) + actionLink('WhatsApp', b.whatsappHref, true)
+      });
+    } else {
+      if (b.phone) {
+        rows += detailRow({ icon: 'phone', label: 'Phone', value: b.phone, href: b.phoneHref });
+      }
+      if (b.whatsapp) {
+        rows += detailRow({ icon: 'whatsapp', label: 'WhatsApp', value: b.whatsapp, href: b.whatsappHref, external: true, wa: true });
+      }
     }
     if (b.email) {
-      rows += detailRow({ icon: 'email', label: 'Email', value: b.email, href: b.emailHref });
+      // mailto does nothing on a machine with no mail app set up, so the address
+      // can always be copied instead.
+      rows += detailRow({
+        icon: 'email',
+        label: 'Email',
+        value: b.email,
+        actions: actionLink('Send email', b.emailHref) + copyButton(b.email)
+      });
     }
     if (b.website) {
       rows += detailRow({ icon: 'website', label: 'Website', value: b.website, href: b.websiteHref, external: true });
