@@ -373,14 +373,20 @@ a { color: var(--button); }
 
 /* ---------- Business grid ---------- */
 
+/* Flex rather than grid: with an odd count (5 businesses across 4 columns)
+   grid strands the last card at the left edge, while flex centres it. */
 .grid {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 230px));
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 18px;
+}
+.grid-item {
+  flex: 0 1 200px;
+  min-width: 180px;
 }
 .grid-item[hidden] { display: none; }
 
@@ -716,7 +722,8 @@ body.no-scroll { overflow: hidden; }
   .hero-logo { max-width: min(100%, 260px); max-height: 260px; }
   .about-inner .prose p { font-size: 16px; }
 
-  .grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .grid { gap: 12px; }
+  .grid-item { flex: 0 1 calc(50% - 6px); min-width: 0; }
   .card { padding: 20px 12px 18px; }
   .card-logo { height: 70px; }
   .card-logo img { max-height: 70px; }
